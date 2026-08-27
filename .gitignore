@@ -1,4 +1,3 @@
-
 # UV
 #   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
 #   This is especially recommended for binary packages to ensure reproducibility, and is more
@@ -6,4 +5,49 @@
 uv.lock
 .venv
 
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+
+# DuckDB warehouse (generated locally — not committed)
+data/warehouse/
+*.duckdb
+
+# Generated CSV files (run generate_dataset.py locally to create these)
+data/raw/*_raw.csv
+
+# dbt artifacts
+dbt_project/target/
+dbt_project/logs/
+dbt_project/.user.yml
+
+# Vanna training store
+ai_layer/vanna_store/
+*.chromadb/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+
+# Claude Code
+.claude/settings.local.json
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
 
