@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: "Cleaned customer data from the raw schema. One row per customer."
+    columns:
+      - name: CUSTOMER_ID
+        description: "Unique identifier for each customer."
+        tests:
+          - unique
+          - not_null
+      - name: EMAIL
+        description: "Customer email address."
+        tests:
+          - not_null
+      - name: SEGMENT
+        description: "Customer segment."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['consumer', 'corporate', 'small_business']
+
+  - name: stg_orders
+    description: "Cleaned order data. Duplicates removed, dates standardized, null customer IDs and invalid quantities filtered."
+    columns:
+      - name: ORDER_ID
+        description: "Unique identifier for each order."
+        tests:
+          - unique
+          - not_null
+      - name: CUSTOMER_ID
+        description: "Foreign key to stg_customers. Null values removed in cleaning."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: CUSTOMER_ID
+      - name: QUANTITY
+        description: "Number of units ordered. Always greater than zero after cleaning."
+        tests:
+          - not_null
+      - name: ORDER_STATUS
+        description: "Current status of the order."
+        tests:
+          - not_null
+
+  - name: stg_products
+    description: "Cleaned product catalog from the raw schema. One row per product."
+    columns:
+      - name: PRODUCT_ID
+        description: "Unique identifier for each product."
+        tests:
+          - unique
+          - not_null

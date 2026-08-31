@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Star Schema vs. Third Normal Form (3NF)</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #171a23;
+    --border: #2a2e3a;
+    --text: #e6e8ee;
+    --muted: #9aa1b2;
+    --fact: #4f7cff;
+    --dim: #34c98f;
+    --accent: #ffb454;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 20px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  .container { max-width: 920px; margin: 0 auto; }
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+  }
+  .subtitle { color: var(--muted); margin-top: 0; margin-bottom: 32px; }
+  h2 {
+    font-size: 1.2rem;
+    margin-top: 40px;
+    border-left: 4px solid var(--accent);
+    padding-left: 12px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 700px) {
+    .grid2 { grid-template-columns: 1fr; }
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    margin: 16px 0;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+  }
+  th { background: #1d2130; color: var(--accent); }
+  code {
+    background: #1d2130;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #ffcf8a;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+  }
+  .tag.star { background: rgba(79,124,255,0.15); color: var(--fact); }
+  .tag.nf { background: rgba(52,201,143,0.15); color: var(--dim); }
+  svg { width: 100%; height: auto; display: block; }
+  .box {
+    fill: var(--panel);
+    stroke: var(--border);
+    stroke-width: 1.5;
+    rx: 6;
+  }
+  .box-fact { stroke: var(--fact); }
+  .box-dim { stroke: var(--dim); }
+  .label { fill: var(--text); font-size: 12px; font-family: inherit; }
+  .title-label { fill: var(--accent); font-size: 13px; font-weight: 600; }
+  .edge { stroke: var(--muted); stroke-width: 1.2; fill: none; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .note {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Star Schema vs. Third Normal Form (3NF)</h1>
+  <p class="subtitle">Two design philosophies, two different goals: fast analytical reads vs. clean, redundancy-free transactional storage.</p>
+
+  <h2>1. The Core Idea</h2>
+  <div class="grid2">
+    <div class="panel">
+      <span class="tag star">Star Schema</span>
+      <p>A <strong>denormalized</strong> model used in data warehouses. One central <strong>fact table</strong> (measurable events, e.g. sales) connects directly to several <strong>dimension tables</strong> (descriptive context, e.g. customer, product, date). Dimensions are wide and often not normalized internally.</p>
+    </div>
+    <div class="panel">
+      <span class="tag nf">Third Normal Form</span>
+      <p>A <strong>normalized</strong> relational design used in transactional (OLTP) systems. Every non-key attribute depends only on the primary key, and transitive dependencies are removed by splitting data into many small, interlinked tables.</p>
+    </div>
+  </div>
+
+  <h2>2. Visual Structure</h2>
+  <div class="panel">
+    <svg viewBox="0 0 880 380" xmlns="http://www.w3.org/2000/svg">
+      <text x="150" y="24" class="title-label" text-anchor="middle">Star Schema</text>
+      <path class="edge" d="M280,190 L400,120"></path>
+      <path class="edge" d="M280,190 L400,190"></path>
+      <path class="edge" d="M280,190 L400,260"></path>
+      <path class="edge" d="M280,190 L160,260"></path>
+      <path class="edge" d="M280,190 L160,120"></path>
+
+      <rect class="box box-fact" x="220" y="160" width="120" height="60"></rect>
+      <text x="280" y="185" class="label" text-anchor="middle" font-weight="600">Fact_Sales</text>
+      <text x="280" y="202" class="label" text-anchor="middle" font-size="10">qty, amount, FKs</text>
+
+      <rect class="box box-dim" x="390" y="90" width="110" height="55"></rect>
+      <text x="445" y="112" class="label" text-anchor="middle">Dim_Product</text>
+      <text x="445" y="128" class="label" text-anchor="middle" font-size="9">name, category, brand</text>
+
+      <rect class="box box-dim" x="390" y="160" width="110" height="55"></rect>
+      <text x="445" y="182" class="label" text-anchor="middle">Dim_Customer</text>
+      <text x="445" y="198" class="label" text-anchor="middle" font-size="9">name, city, segment</text>
+
+      <rect class="box box-dim" x="390" y="230" width="110" height="55"></rect>
+      <text x="445" y="252" class="label" text-anchor="middle">Dim_Date</text>
+      <text x="445" y="268" class="label" text-anchor="middle" font-size="9">day, month, year</text>
+
+      <rect class="box box-dim" x="60" y="230" width="110" height="55"></rect>
+      <text x="115" y="252" class="label" text-anchor="middle">Dim_Store</text>
+      <text x="115" y="268" class="label" text-anchor="middle" font-size="9">city, region</text>
+
+      <rect class="box box-dim" x="60" y="90" width="110" height="55"></rect>
+      <text x="115" y="112" class="label" text-anchor="middle">Dim_Employee</text>
+      <text x="115" y="128" class="label" text-anchor="middle" font-size="9">name, role</text>
+
+      <text x="550" y="330" class="label" font-size="11" fill="#9aa1b2">One central fact, direct 1-hop joins to each dimension.</text>
+    </svg>
+  </div>
+
+  <div class="panel">
+    <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg">
+      <text x="440" y="24" class="title-label" text-anchor="middle">Third Normal Form (fragment)</text>
+
+      <rect class="box box-dim" x="20" y="60" width="130" height="55"></rect>
+      <text x="85" y="82" class="label" text-anchor="middle">Customer</text>
+      <text x="85" y="98" class="label" text-anchor="middle" font-size="9">id, name, city_id</text>
+
+      <rect class="box box-dim" x="20" y="160" width="130" height="55"></rect>
+      <text x="85" y="182" class="label" text-anchor="middle">City</text>
+      <text x="85" y="198" class="label" text-anchor="middle" font-size="9">id, name, region_id</text>
+
+      <rect class="box box-dim" x="20" y="220" width="130" height="0"></rect>
+
+      <rect class="box box-fact" x="240" y="110" width="130" height="55"></rect>
+      <text x="305" y="132" class="label" text-anchor="middle" font-weight="600">Order</text>
+      <text x="305" y="148" class="label" text-anchor="middle" font-size="9">id, customer_id, date_id</text>
+
+      <rect class="box box-dim" x="460" y="60" width="130" height="55"></rect>
+      <text x="525" y="82" class="label" text-anchor="middle">OrderLine</text>
+      <text x="525" y="98" class="label" text-anchor="middle" font-size="9">order_id, product_id, qty</text>
+
+      <rect class="box box-dim" x="460" y="160" width="130" height="55"></rect>
+      <text x="525" y="182" class="label" text-anchor="middle">Product</text>
+      <text x="525" y="198" class="label" text-anchor="middle" font-size="9">id, name, category_id</text>
+
+      <rect class="box box-dim" x="680" y="160" width="130" height="55"></rect>
+      <text x="745" y="182" class="label" text-anchor="middle">Category</text>
+      <text x="745" y="198" class="label" text-anchor="middle" font-size="9">id, name</text>
+
+      <path class="edge" d="M150,88 L240,130"></path>
+      <path class="edge" d="M85,115 L85,160"></path>
+      <path class="edge" d="M370,130 L460,90"></path>
+      <path class="edge" d="M525,115 L525,160"></path>
+      <path class="edge" d="M590,188 L680,188"></path>
+
+      <text x="440" y="270" class="label" text-anchor="middle" font-size="11" fill="#9aa1b2">Many small tables, multi-hop joins to reach descriptive attributes.</text>
+    </svg>
+  </div>
+
+  <h2>3. Why They Differ: The Underlying Goal</h2>
+  <table>
+    <tr><th></th><th>Star Schema</th><th>3NF</th></tr>
+    <tr><td>Primary use case</td><td>OLAP / analytics / reporting</td><td>OLTP / day-to-day operations</td></tr>
+    <tr><td>Redundancy</td><td>Allowed deliberately (denormalized dimensions)</td><td>Minimized by design</td></tr>
+    <tr><td>Joins per query</td><td>Few — fact joins directly to each dimension</td><td>Many — data spread across normalized tables</td></tr>
+    <tr><td>Update anomalies</td><td>Possible, but rare since dimensions are rarely updated in place</td><td>Prevented by construction</td></tr>
+    <tr><td>Read performance</td><td>Optimized (wide, denormalized dimensions)</td><td>Can be slower for large aggregate queries</td></tr>
+    <tr><td>Write/insert integrity</td><td>Not the priority</td><td>The priority</td></tr>
+    <tr><td>Storage footprint</td><td>Larger (duplicated attribute values)</td><td>Smaller (each fact stored once)</td></tr>
+  </table>
+
+  <h2>4. Formal Definitions</h2>
+  <div class="panel">
+    <p><strong>Third Normal Form</strong> requires a relation to be in 2NF and, additionally, that every non-key attribute is <em>non-transitively</em> dependent on the primary key: there is no attribute <code>A</code> depending on a non-key attribute <code>B</code>, where <code>B</code> depends on the key. Formally: for every functional dependency <code>X → A</code> in the relation, either <code>X</code> is a superkey, or <code>A</code> is a prime attribute (part of some candidate key).</p>
+  </div>
+  <div class="panel">
+    <p><strong>Star Schema</strong> has no such normalization requirement. It is defined structurally: one fact table containing foreign keys to a set of dimension tables and numeric measures, with dimension tables typically kept in a partially or fully denormalized form (sometimes called "1.5NF" or "flattened" tables) so that each dimension can be queried with a single join instead of several.</p>
+  </div>
+
+  <h2>5. Quick Example</h2>
+  <p>Suppose you store "Product → Category → Department". In <strong>3NF</strong> these live in three separate tables to avoid repeating the department name on every product row. In a <strong>star schema</strong>, the dimension table <code>Dim_Product</code> would typically include <code>category</code> and <code>department</code> as plain columns directly on the product row — duplicated across every product in that category — because the goal is to answer "total sales by department" with one join, not three.</p>
+
+  <div class="note">
+    In practice, real warehouses often use a hybrid: a <strong>snowflake schema</strong> (dimensions partially normalized) sits between the two extremes, trading a few extra joins for less redundancy in the dimension tables.
+  </div>
+
+</div>
+</body>
+</html>
