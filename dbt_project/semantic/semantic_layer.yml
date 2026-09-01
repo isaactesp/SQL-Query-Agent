@@ -65,10 +65,16 @@ semantic_layer:
 
     - name: return_rate
       description: >
-        The return rate aims to analyse the amount of revenue which has been returned.
-        Use to calculate the part of the revenue we have returned to the cu.
+        Share of fulfilled revenue that was later returned: revenue from
+        returned orders divided by revenue from returned and completed
+        orders combined. Cancelled orders are excluded from both sides,
+        since they were never fulfilled and can't be returned.
+        Use to measure how much of the revenue we actually delivered
+        ends up coming back.
       model: fct_orders
-      aggregation: SUM(REVENUE) filter (where order_status = 'returned') / SUM(REVENUE)  
+      aggregation: >
+        SUM(REVENUE) FILTER (WHERE ORDER_STATUS = 'returned')
+        / SUM(REVENUE) FILTER (WHERE ORDER_STATUS IN ('returned', 'completed'))
 
   dimensions:
     - name: order_date
