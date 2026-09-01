@@ -101,6 +101,10 @@ def train(vn: VannaEcommerce) -> None:
             "What is total revenue in the last year?",
             "SELECT SUM(REVENUE) AS revenue_last_year FROM main_marts.fct_orders WHERE ORDER_DATE >= (SELECT MAX(ORDER_DATE) FROM main_marts.fct_orders) - INTERVAL '1 year'",
         ),
+        (
+            "How many orders were placed in the last 6 months?",
+            "SELECT COUNT(ORDER_ID) AS order_count FROM main_marts.fct_orders WHERE ORDER_DATE >= (SELECT MAX(ORDER_DATE) FROM main_marts.fct_orders) - INTERVAL '6 months'",
+        ),
     ]
     for question, sql in examples:
         vn.train(question=question, sql=sql)
