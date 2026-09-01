@@ -1,10 +1,10 @@
 """
-app.py
+mvp.py
 ------
 Streamlit interface for the Vanna query engine.
 Requires ai_layer/setup.py to have been run first (trains ChromaDB).
 
-Run with:  streamlit run app/app.py
+Run with:  streamlit run frontend/mvp.py
 """
 
 import os

@@ -334,4 +334,4 @@ if __name__ == "__main__":
     print("  - ~2% duplicate order rows")
     print("  - Invalid quantity values (0 and -1)")
     print("\ncustomers_raw.csv and products_raw.csv are clean.")
-    print("\nNext step -> run: python ch00_setup/00_ingest.py")
+    print("\nNext step -> run: python setup/ingest.py")
