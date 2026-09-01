@@ -1,0 +1,115 @@
+version: 1
+
+semantic_layer:
+  description: >
+    E-commerce analytics semantic layer.
+    Use this file to understand which tables, metrics, and dimensions
+    are available for natural-language queries.
+
+  models:
+    - name: fct_orders
+      description: >
+        Core fact table. One row per order.
+        Use for revenue, order volume, and order status analysis.
+        Contains customer and product context - no joins needed for most questions.
+      schema: main_marts
+
+    - name: dim_customers
+      description: >
+        Customer dimension with pre-computed lifetime metrics.
+        Use for customer-level analysis: lifetime value, total orders,
+        first and last order dates, segment, and country.
+      schema: main_marts
+
+    - name: dim_products
+      description: >
+        Product dimension. Use for product, category, and brand analysis.
+      schema: main_marts
+
+  metrics:
+    - name: total_revenue
+      description: >
+        Sum of REVENUE across all orders.
+        Use for revenue trend, revenue by segment, revenue by product category.
+      model: fct_orders
+      aggregation: SUM(REVENUE)
+
+    - name: order_count
+      description: >
+        Number of orders placed. Use for volume analysis, order trends over time,
+        and comparing order frequency across segments or countries.
+      model: fct_orders
+      aggregation: COUNT(ORDER_ID)
+
+    - name: avg_order_value
+      description: >
+        Average revenue per order (total_revenue / order_count).
+        Use to compare purchasing behaviour across segments, countries, or time periods.
+      model: fct_orders
+      aggregation: AVG(REVENUE)
+
+    - name: total_customers
+      description: >
+        Count of distinct customers who have placed at least one order.
+        Use for audience sizing and cohort analysis.
+      model: fct_orders
+      aggregation: COUNT(DISTINCT CUSTOMER_ID)
+
+    - name: avg_customer_lifetime_value
+      description: >
+        Average lifetime value across all customers.
+        Sourced from dim_customers.CUSTOMER_LIFETIME_VALUE which is pre-computed.
+        Use for segment-level CLV comparisons.
+      model: dim_customers
+      aggregation: AVG(CUSTOMER_LIFETIME_VALUE)
+
+  dimensions:
+    - name: order_date
+      description: >
+        Date the order was placed (ORDER_DATE column in fct_orders).
+        Supports daily, weekly, monthly, and yearly grouping.
+        Use when the question involves time: trends, year-over-year, month-over-month.
+      model: fct_orders
+      column: ORDER_DATE
+      type: time
+
+    - name: order_status
+      description: >
+        Current status of the order: completed, returned, cancelled.
+        Use to filter or group by fulfilment stage.
+      model: fct_orders
+      column: ORDER_STATUS
+      type: categorical
+
+    - name: customer_segment
+      description: >
+        Customer value segment: consumer, corporate, small_business.
+        Available on both fct_orders (CUSTOMER_SEGMENT) and dim_customers (SEGMENT).
+        Use to compare metrics across customer tiers.
+      model: fct_orders
+      column: CUSTOMER_SEGMENT
+      type: categorical
+
+    - name: country
+      description: >
+        Customer country code. Available on both fct_orders and dim_customers.
+        Use for geographic breakdowns and regional comparisons.
+      model: fct_orders
+      column: COUNTRY_CODE
+      type: categorical
+
+    - name: product_category
+      description: >
+        High-level product grouping: Electronics, Clothing, Home and Garden, Sports, Books.
+        Available on fct_orders. Use for category-level revenue and volume analysis.
+      model: fct_orders
+      column: CATEGORY
+      type: categorical
+
+    - name: brand
+      description: >
+        Product brand. Available on fct_orders (BRAND_NAME) and dim_products.
+        Use for brand-level performance comparisons.
+      model: fct_orders
+      column: BRAND_NAME
+      type: categorical
