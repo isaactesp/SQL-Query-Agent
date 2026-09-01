@@ -63,6 +63,13 @@ semantic_layer:
       model: dim_customers
       aggregation: AVG(CUSTOMER_LIFETIME_VALUE)
 
+    - name: return_rate
+      description: >
+        The return rate aims to analyse the amount of revenue which has been returned.
+        Use to calculate the part of the revenue we have returned to the cu.
+      model: fct_orders
+      aggregation: SUM(REVENUE) filter (where order_status = 'returned') / SUM(REVENUE)  
+
   dimensions:
     - name: order_date
       description: >
