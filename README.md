@@ -155,4 +155,4 @@ Vanna store — are git-ignored and recreated by the steps above.
 ## Tech stack
 
 DuckDB · dbt-core + dbt-duckdb · Vanna · ChromaDB · Ollama (llama3.1) ·
-Streamlit · pandas · Faker
+Streamlit · pandas
