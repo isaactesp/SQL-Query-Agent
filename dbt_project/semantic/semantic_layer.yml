@@ -76,6 +76,20 @@ semantic_layer:
         SUM(REVENUE) FILTER (WHERE ORDER_STATUS = 'returned')
         / SUM(REVENUE) FILTER (WHERE ORDER_STATUS IN ('returned', 'completed'))
 
+
+    - name: cancellation_rate
+      description: >
+        Share of all orders that were cancelled: cancelled orders divided
+        by total orders placed. Unlike return_rate, the denominator here
+        is every order regardless of fulfilment outcome, so this captures
+        demand that never got fulfilled at all.
+        Use to measure checkout/fulfilment friction over time, by segment,
+        by country, or by product category.
+      model: fct_orders
+      aggregation: >
+        COUNT(ORDER_ID) FILTER (WHERE ORDER_STATUS = 'cancelled')
+        / COUNT(ORDER_ID)
+
   dimensions:
     - name: order_date
       description: >
