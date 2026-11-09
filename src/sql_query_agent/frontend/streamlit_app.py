@@ -1,27 +1,21 @@
 """
-mvp.py
-------
-Streamlit interface for the Vanna query engine.
-Requires ai_layer/setup.py to have been run first (trains ChromaDB).
+Streamlit interface for the query engine.
+Requires the vector store to be trained first (`sql-query-agent train`).
 
-Run with:  streamlit run frontend/mvp.py
+Run with:  sql-query-agent ui
 """
-
-import os
-import sys
 
 import streamlit as st
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(PROJECT_ROOT)
-from ai_layer.setup import get_vanna
+from sql_query_agent.agent.vanna_client import get_vanna
+from sql_query_agent.config import settings
 
 st.set_page_config(
     page_title="Ask Your Data", page_icon="chart_with_upwards_trend", layout="centered"
 )
 
 st.title("Ask Your Data")
-st.caption("Powered by Vanna, Ollama llama3.1 and DuckDB")
+st.caption(f"Powered by Vanna, Ollama {settings.ollama_model} and DuckDB")
 
 
 @st.cache_resource(show_spinner="Loading AI model...")

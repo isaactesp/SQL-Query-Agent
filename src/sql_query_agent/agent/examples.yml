@@ -1,0 +1,42 @@
+# Few-shot question -> SQL pairs used to seed the Vanna RAG store.
+# Add new pairs here; no code changes needed. Re-run `sql-query-agent train`.
+
+examples:
+  - question: What is total revenue by product category?
+    sql: >
+      SELECT CATEGORY, SUM(REVENUE) AS total_revenue
+      FROM main_marts.fct_orders
+      GROUP BY CATEGORY
+      ORDER BY total_revenue DESC
+
+  - question: What is total revenue for completed orders only?
+    sql: >
+      SELECT SUM(REVENUE) AS total_revenue
+      FROM main_marts.fct_orders
+      WHERE ORDER_STATUS = 'completed'
+
+  - question: Who are the top 5 customers by lifetime value?
+    sql: >
+      SELECT NAME, CUSTOMER_LIFETIME_VALUE
+      FROM main_marts.dim_customers
+      ORDER BY CUSTOMER_LIFETIME_VALUE DESC
+      LIMIT 5
+
+  - question: How many orders were placed per country?
+    sql: >
+      SELECT COUNTRY_CODE, COUNT(ORDER_ID) AS order_count
+      FROM main_marts.fct_orders
+      GROUP BY COUNTRY_CODE
+      ORDER BY order_count DESC
+
+  - question: What is total revenue in the last year?
+    sql: >
+      SELECT SUM(REVENUE) AS revenue_last_year
+      FROM main_marts.fct_orders
+      WHERE ORDER_DATE >= (SELECT MAX(ORDER_DATE) FROM main_marts.fct_orders) - INTERVAL '1 year'
+
+  - question: How many orders were placed in the last 6 months?
+    sql: >
+      SELECT COUNT(ORDER_ID) AS order_count
+      FROM main_marts.fct_orders
+      WHERE ORDER_DATE >= (SELECT MAX(ORDER_DATE) FROM main_marts.fct_orders) - INTERVAL '6 months'

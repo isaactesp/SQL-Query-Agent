@@ -1,10 +1,8 @@
 """
-generate_dataset.py
--------------------
 Generates three synthetic CSV files that simulate a small e-commerce business.
-Run once before ingesting into DuckDB.
+Run once before ingesting into DuckDB:  sql-query-agent generate
 
-Output:
+Output (in settings.raw_dir):
     data/raw/orders_raw.csv
     data/raw/customers_raw.csv
     data/raw/products_raw.csv
@@ -18,19 +16,16 @@ Intentional data quality issues injected into orders_raw.csv only:
 customers_raw.csv and products_raw.csv are clean by design.
 """
 
+from __future__ import annotations
+
 import csv
-import os
 import random
 from datetime import date, timedelta
+from pathlib import Path
 
-# ── Reproducibility ───────────────────────────────────────────────────────────
-random.seed(42)
+from sql_query_agent.config import settings
 
-# ── Output paths ─────────────────────────────────────────────────────────────
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-OUT_ORDERS = os.path.join(BASE_DIR, "orders_raw.csv")
-OUT_CUSTOMERS = os.path.join(BASE_DIR, "customers_raw.csv")
-OUT_PRODUCTS = os.path.join(BASE_DIR, "products_raw.csv")
+SEED = 42
 
 # ── Reference data ────────────────────────────────────────────────────────────
 COUNTRIES = ["US", "DE", "FR", "GB", "ES", "MX", "BR", "CA", "AU", "JP"]
@@ -300,7 +295,7 @@ def generate_orders(customers, products, n: int = 5000):
 # ── Write CSVs ────────────────────────────────────────────────────────────────
 
 
-def write_csv(filepath: str, rows: list[dict]):
+def write_csv(filepath: Path, rows: list[dict]):
     if not rows:
         return
     fieldnames = list(rows[0].keys())
@@ -308,21 +303,31 @@ def write_csv(filepath: str, rows: list[dict]):
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
-    print(f"  Written {len(rows):,} rows -> {os.path.basename(filepath)}")
+    print(f"  Written {len(rows):,} rows -> {filepath.name}")
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
-if __name__ == "__main__":
-    print("Generating synthetic e-commerce dataset...")
 
+def generate(out_dir: Path | None = None, seed: int = SEED) -> dict[str, list[dict]]:
+    random.seed(seed)
     products = generate_products(100)
     customers = generate_customers(500)
     orders = generate_orders(customers, products, 5000)
 
-    write_csv(OUT_PRODUCTS, products)
-    write_csv(OUT_CUSTOMERS, customers)
-    write_csv(OUT_ORDERS, orders)
+    if out_dir is not None:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        write_csv(out_dir / "products_raw.csv", products)
+        write_csv(out_dir / "customers_raw.csv", customers)
+        write_csv(out_dir / "orders_raw.csv", orders)
+
+    return {"products": products, "customers": customers, "orders": orders}
+
+
+def main() -> None:
+    print("Generating synthetic e-commerce dataset...")
+    data = generate(settings.raw_dir)
+    products, customers, orders = data["products"], data["customers"], data["orders"]
 
     print("\nSummary:")
     print(f"  Products:  {len(products):>6,} rows")
@@ -334,4 +339,8 @@ if __name__ == "__main__":
     print("  - ~2% duplicate order rows")
     print("  - Invalid quantity values (0 and -1)")
     print("\ncustomers_raw.csv and products_raw.csv are clean.")
-    print("\nNext step -> run: python setup/ingest.py")
+    print("\nNext step -> run: sql-query-agent ingest")
+
+
+if __name__ == "__main__":
+    main()

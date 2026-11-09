@@ -1,15 +1,11 @@
-Welcome to your new dbt project!
+# dbt project — transformation layer
 
-### Using the starter project
+Turns the `raw` schema (loaded by `sql-query-agent ingest`) into:
 
-Try running the following commands:
-- dbt run
-- dbt test
+- `models/staging/` — silver layer: one cleaned view per source, plus source definitions and tests.
+- `models/marts/` — gold layer: star schema (`fct_orders`, `dim_customers`, `dim_products`).
+- `semantic/semantic_layer.yml` — business description of the gold layer, consumed by the AI layer.
+- `analyses/validate_semantic_layer.sql` — sanity checks for the semantic-layer metrics.
 
-
-### Resources:
-- Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [chat](https://community.getdbt.com/) on Slack for live discussions and support
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
+Run from the project root with `sql-query-agent transform` (equivalent to `dbt build`),
+or directly from this folder with `dbt run && dbt test`.

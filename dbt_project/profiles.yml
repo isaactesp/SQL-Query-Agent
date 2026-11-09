@@ -3,5 +3,10 @@ dbt_project:
   outputs:
     dev:
       type: duckdb
-      path: '../data/warehouse/warehouse.duckdb'
-      threads: 4
+      # `sql-query-agent transform` passes an absolute path; the fallback keeps
+      # plain `dbt run` working from inside dbt_project/.
+      path: "{{ env_var('SQA_WAREHOUSE_PATH', '../data/warehouse/warehouse.duckdb') }}"
+      # Single-threaded on purpose: with several threads, duckdb 1.1.3 under dbt
+      # intermittently crashes the interpreter ("PyEval_SaveThread ... GIL is
+      # released" / SIGSEGV). With 6 models the build takes ~2 s anyway.
+      threads: 1

@@ -1,5 +1,4 @@
-# UV
-uv.lock
+# UV (uv.lock IS committed for reproducible installs)
 .venv
 
 # Python
@@ -15,21 +14,19 @@ build/
 # Environment
 .env
 
-# DuckDB warehouse (generated locally — not committed)
-data/warehouse/
+# Generated data artefacts (recreate with `sql-query-agent pipeline`)
+data/
 *.duckdb
-
-# Generated CSV files (run generate_dataset.py locally to create these)
-data/raw/*_raw.csv
 
 # dbt artifacts
 dbt_project/target/
-dbt_project/logs/
+dbt_project/dbt_packages/
 dbt_project/.user.yml
+logs/
 
-# Vanna training store
-ai_layer/vanna_store/
-*.chromadb/
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
 
 # OS
 .DS_Store
